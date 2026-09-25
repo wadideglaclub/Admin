@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cards Delivery - October 1</title>
+<link rel="icon" type="image/png" href="./favicon.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>body{background:#f9f9f6;margin:0;font-family:'Cairo',sans-serif}#root{min-height:100vh}#wd-membership-lookup{display:block !important; visibility:visible !important;}</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+var auth = sessionStorage.getItem('wd_october1_auth') || localStorage.getItem('wd_october1_auth');
+if(auth !== 'true'){location.replace('./index.html');}
+try{
+  var r=localStorage.getItem('wd_role');
+  if(r&&!sessionStorage.getItem('wd_role')){
+    sessionStorage.setItem('wd_role',r);
+    sessionStorage.setItem('wd_username',localStorage.getItem('wd_username')||'');
+  }
+  if(localStorage.getItem('wd_october1_auth')==='true') sessionStorage.setItem('wd_october1_auth','true');
+}catch(e){}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<script src="./texts.js"></script>
+<script src="./sync.js"></script>
+<script src="./admin.js"></script>
+<script src="./logout.js"></script>
+<script src="./status-patch.js"></script>
+<script src="./lookup.js"></script>
+
+<script>
+// Based on the WORKING file you sent - enhanced with your new requests
+(function(){
+  function getRole(){
+    try{return (sessionStorage.getItem('wd_role')||localStorage.getItem('wd_role')||'admin').toLowerCase();}catch(e){return 'admin';}
+  }
+  var role = getRole();
+  var isStaff = role === 'staff';
+  window.WD_ROLE = role;
+  window.WD_IS_STAFF = isStaff;
+  window.WD_IS_ADMIN = !isStaff;
+  
+  function ensureLookupVisible(){
+    var lookup = document.getElementById('wd-membership-lookup');
+    if(lookup){
+      lookup.style.setProperty('display','block','important');
+      lookup.style.setProperty('visibility','visible','important');
+      var root = document.getElementById('root');
+      if(root && lookup.parentNode !== root){
+        if(root.firstChild) root.insertBefore(lookup, root.firstChild);
+      }
+    }
+  }
+  
+  function moveLogoutToEnd(){
+    document.querySelectorAll('button').forEach(function(btn){
+      var t=(btn.textContent||'').trim();
+      if(t.includes('خروج') && t.length<20){
+        btn.style.background='#DC2626';
+        btn.style.color='white';
+        btn.style.border='none';
+        btn.style.borderRadius='12px';
+        if(!btn.innerHTML.includes('🚪')) btn.innerHTML='🚪 خروج';
+        try{
+          var c=btn.parentElement;
+          var d=0;
+          while(c && d<6){
+            if(c.querySelectorAll('button').length>=3){
+              if(c.contains(btn)) c.appendChild(btn);
+              break;
+            }
+            c=c.parentElement; d++;
+          }
+        }catch(e){}
+      }
+    });
+  }
+  
+  if(!isStaff){
+    console.log('Admin Andrew - full access');
+    // Admin also needs lookup visible and logout at end
+    setInterval(function(){ensureLookupVisible(); moveLogoutToEnd();}, 1500);
+    return;
+  }
+  
+  console.log('Staff October1 - applying restrictions');
+  
+  function applyStaff(){
+    try{
+      ensureLookupVisible();
+      moveLogoutToEnd();
+      
+      // 1. شيل لوحة التحكم وخلي الرئيسية طلبات جديدة
+      // 2. شيل الفروع (خاص بالادمن)
+      // 3. شيل ادارة النظام
+      // 4. شيل تصدير الكل وشيت الاكسيل
+      // 5. شيل الواتساب كله
+      document.querySelectorAll('button, a').forEach(function(btn){
+        try{
+          var t=(btn.textContent||'').trim();
+          if(!t || (btn.closest&&btn.closest('#wd-membership-lookup'))) return;
+          var lower = t.toLowerCase();
+          
+          if(t==='لوحة التحكم' || t.includes('لوحة التحكم')) btn.style.display='none';
+          if(t==='الفروع' || (t.includes('الفروع') && t.length<15)) btn.style.display='none';
+          if(t==='إدارة النظام' || t.includes('إدارة النظام')) btn.style.display='none';
+          if(t.includes('تصدير الكل') || t.includes('تصدير') || t.toLowerCase().includes('export') || t.includes('Excel') || t.includes('شيت') || t.includes('اكسيل')){
+            // تجنب اخفاء طلبات جديدة
+            if(!t.includes('طلبات')){
+              btn.style.display='none';
+            }
+          }
+          if(lower.includes('whatsapp') || t.includes('واتساب') || lower.includes('واتس')){
+            btn.style.display='none';
+          }
+        }catch(e){}
+      });
+      
+      // شيل input file
+      document.querySelectorAll('input[type="file"]').forEach(function(inp){
+        if(inp.closest&&inp.closest('#wd-membership-lookup')) return;
+        var txt=inp.parentElement?inp.parentElement.textContent:'';
+        if(txt.includes('استيراد')||txt.includes('تصدير')||txt.includes('شيت')||txt.toLowerCase().includes('export')){
+          var c=inp.closest('div'); if(c) c.style.display='none';
+        }
+      });
+      
+      // شيل الواتساب من كل الصفحة
+      document.querySelectorAll('*').forEach(function(el){
+        try{
+          if(el.children.length>0) return;
+          var txt=(el.textContent||'').toLowerCase();
+          if(txt.includes('whatsapp') || (el.textContent||'').includes('واتساب')){
+            if((el.textContent||'').length<50){
+              var p=el.closest('button, a');
+              if(p) p.style.display='none';
+              else el.style.display='none';
+            }
+          }
+        }catch(e){}
+      });
+      
+      // خلي طلبات جديدة الرئيسية - اضغطه تلقائي
+      if(!window.__staffClicked){
+        document.querySelectorAll('button').forEach(function(b){
+          if(b.textContent.includes('طلبات جديدة')){
+            setTimeout(function(){try{if(!window.__staffClicked){b.click(); window.__staffClicked=true;}}catch(e){}}, 800);
+          }
+        });
+      }
+      
+      // شيل حالة الكارنيهات drop list من التعديل
+      document.querySelectorAll('select').forEach(function(sel){
+        var parentTxt = sel.parentElement?sel.parentElement.textContent:'';
+        if(parentTxt.includes('الحالة') || parentTxt.includes('حالة الكارنيهات')){
+          // تأكد انه في مودال تعديل
+          var isModal=false;
+          var cur=sel.parentElement;
+          var dep=0;
+          while(cur&&dep<8){
+            if(cur.matches && (cur.matches('[class*="modal" i]') || cur.getAttribute('role')==='dialog' || cur.id.toLowerCase().includes('edit'))){
+              isModal=true; break;
+            }
+            cur=cur.parentElement; dep++;
+          }
+          // لو لقيناه في اي مكان وفيه كلمة حالة، اخفيه للموظف
+          if(parentTxt.includes('الحالة')){
+            // شوف لو المودال مفتوح
+            if(document.querySelector('[class*="modal" i]:not([style*="display: none"]), [role="dialog"]:not([style*="display: none"])')){
+              sel.parentElement.style.display='none';
+            } else if(isModal){
+              sel.parentElement.style.display='none';
+            }
+          }
+        }
+      });
+      
+      document.querySelectorAll('label').forEach(function(lbl){
+        var lt=lbl.textContent||'';
+        if(lt.includes('الحالة') || lt.includes('حالة الكارنيهات')){
+          var isModal=false;
+          var cur=lbl.parentElement;
+          var dep=0;
+          while(cur&&dep<8){
+            if(cur.matches && (cur.matches('[class*="modal" i]') || cur.getAttribute('role')==='dialog' || cur.id.toLowerCase().includes('edit'))){
+              isModal=true; break;
+            }
+            cur=cur.parentElement; dep++;
+          }
+          if(isModal || document.querySelector('[class*="modal" i]:not([style*="display: none"])')){
+            lbl.style.display='none';
+            var next=lbl.nextElementSibling;
+            if(next && next.tagName==='SELECT') next.style.display='none';
+            if(lbl.parentElement) lbl.parentElement.style.display='none';
+          }
+        }
+      });
+      
+    }catch(e){console.log(e);}
+  }
+  
+  function boot(){
+    setTimeout(applyStaff, 600);
+    setTimeout(applyStaff, 1200);
+    setTimeout(applyStaff, 2500);
+    setTimeout(applyStaff, 4000);
+    try{new MutationObserver(applyStaff).observe(document.body,{childList:true, subtree:true, attributes:true});}catch(e){}
+    setInterval(applyStaff, 2000);
+  }
+  
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</body>
+</html>
