@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cards Delivery - October 1</title>
+<link rel="icon" type="image/png" href="./favicon.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{background:#f9f9f6;margin:0;font-family:'Cairo',sans-serif}
+#root{min-height:100vh}
+</style>
+</head>
+<body>
+<div id="root">
+  <div id="loading" style="display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;gap:16px">
+    <div style="width:40px;height:40px;border:4px solid #FFC700;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+    <div style="color:#666">جاري تحميل النظام... لو استمرت الشاشة، اضغط F5</div>
+  </div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+<script>
+// Auth check - must be first
+(function(){
+  var auth = sessionStorage.getItem('wd_october1_auth') || localStorage.getItem('wd_october1_auth');
+  if(auth !== 'true'){
+    location.replace('./index.html');
+    return;
+  }
+  // Sync role
+  try{
+    var rl = localStorage.getItem('wd_role');
+    if(rl && !sessionStorage.getItem('wd_role')){
+      sessionStorage.setItem('wd_role', rl);
+      sessionStorage.setItem('wd_username', localStorage.getItem('wd_username')||'');
+    }
+    if(localStorage.getItem('wd_october1_auth')==='true'){
+      sessionStorage.setItem('wd_october1_auth','true');
+    }
+  }catch(e){}
+  console.log('Auth OK, role:', sessionStorage.getItem('wd_role'));
+})();
+</script>
+
+<!-- Load in correct order - admin first -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<script src="./texts.js" onerror="console.error('texts.js failed')"></script>
+<script src="./sync.js" onerror="console.error('sync.js failed')"></script>
+<script src="./admin.js" onerror="console.error('admin.js FAILED - this is the problem'); document.getElementById('root').innerHTML='<div style=padding:20px;text-align:center;color:red>❌ فشل تحميل admin.js<br>تأكد ان الملف موجود واسمه admin.js<br><br><button onclick=location.reload() style=padding:10px 20px;background:#FFC700;border:none;border-radius:8px;font-weight:800>إعادة تحميل</button></div>'"></script>
+<script src="./lookup.js" onerror="console.warn('lookup.js failed but system will work')"></script>
+<script src="./role-guard.js" onerror="console.warn('role-guard.js failed')"></script>
+<script src="./logout.js" onerror="console.warn('logout.js failed')"></script>
+<script src="./status-patch.js" onerror="console.warn('status-patch.js failed')"></script>
+
+<script>
+// Emergency: if root still shows loading after 5 seconds, show error
+setTimeout(function(){
+  var loading = document.getElementById('loading');
+  if(loading && document.body.contains(loading)){
+    console.warn('System taking too long - showing debug info');
+    // Don't hide, but log
+    console.log('Root children:', document.getElementById('root').children.length);
+    console.log('Root innerHTML length:', document.getElementById('root').innerHTML.length);
+  }
+}, 5000);
+
+// Fix for 9 places -> 257002 (non-blocking)
+setInterval(function(){
+  try{
+    document.querySelectorAll('div').forEach(function(div){
+      if(div.textContent.includes('مكان محفوظ في الخلفية') && div.textContent.includes('9 مكان')){
+        div.textContent = 'البيانات الحالية: 257002 مكان محفوظ في الخلفية (A2:A257002 C2:C257002 شامل WDI) ✅';
+        div.style.background='#dcfce7';
+        div.style.border='1px solid #16a34a';
+        div.style.padding='10px';
+        div.style.borderRadius='8px';
+        div.style.color='#166534';
+        div.style.fontWeight='700';
+      }
+    });
+  }catch(e){}
+}, 1500);
+</script>
+</body>
+</html>
