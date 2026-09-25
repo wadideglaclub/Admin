@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cards Delivery</title>
+<link rel="icon" type="image/png" href="./favicon.png">
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div id="root"></div>
+<script>
+var auth = sessionStorage.getItem('wd_october1_auth') || localStorage.getItem('wd_october1_auth');
+if(auth !== 'true') location.replace('./index.html');
+try{
+  var r=localStorage.getItem('wd_role');
+  if(r&&!sessionStorage.getItem('wd_role')){sessionStorage.setItem('wd_role',r);}
+  if(localStorage.getItem('wd_october1_auth')==='true') sessionStorage.setItem('wd_october1_auth','true');
+}catch(e){}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<script src="./texts.js"></script>
+<script src="./sync.js"></script>
+<script src="./admin.js"></script>
+<script src="./logout.js"></script>
+<script src="./status-patch.js"></script>
+</body>
+</html>
