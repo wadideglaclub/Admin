@@ -1,16 +1,18 @@
 
 (function(){
   function getRole(){ try{return (sessionStorage.getItem('wd_role')||localStorage.getItem('wd_role')||'admin').toLowerCase();}catch(e){return 'admin';} }
-  var _role = getRole();
-  if(_role === 'staff'){
-    console.log('STAFF detected - status patch disabled (حالة الكارنيهات محذوفة لـ October 1)');
-    // Hide existing field continuously for staff
+  if(getRole()==='staff'){
+    console.log('October 1 - حالة الكارنيهات مخفية');
     setInterval(function(){
-      var f = document.getElementById('wd-status-field');
+      var f=document.getElementById('wd-status-field');
       if(f) f.style.setProperty('display','none','important');
-    }, 500);
+      var s=document.getElementById('wd-status-select');
+      if(s && s.parentElement) s.parentElement.parentElement.style.setProperty('display','none','important');
+    },500);
     return;
   }
+  // Admin only - original logic
+
 
   console.log('WD Patch v8 - No reload on edit');
   var currentEditId = null;
@@ -206,19 +208,7 @@
           var editId=currentEditId;
           if(newStatus && editId){
             // استنى الحفظ الأصلي يخلص
-            setTimeout(function(){
-  function getRole(){ try{return (sessionStorage.getItem('wd_role')||localStorage.getItem('wd_role')||'admin').toLowerCase();}catch(e){return 'admin';} }
-  var _role = getRole();
-  if(_role === 'staff'){
-    console.log('STAFF detected - status patch disabled (حالة الكارنيهات محذوفة لـ October 1)');
-    // Hide existing field continuously for staff
-    setInterval(function(){
-      var f = document.getElementById('wd-status-field');
-      if(f) f.style.setProperty('display','none','important');
-    }, 500);
-    return;
-  }
-
+            setTimeout
               var reqs=getRequests();
               for(var r=0;r<reqs.length;r++){
                 if(reqs[r].id===editId){ 
@@ -231,19 +221,7 @@
               // حدث الصف في مكانه من غير Reload
               updateRowBadgeInPlace(newStatus);
               // اقفل المودال من غير ما ترجع للرئيسية
-              setTimeout(function(){
-  function getRole(){ try{return (sessionStorage.getItem('wd_role')||localStorage.getItem('wd_role')||'admin').toLowerCase();}catch(e){return 'admin';} }
-  var _role = getRole();
-  if(_role === 'staff'){
-    console.log('STAFF detected - status patch disabled (حالة الكارنيهات محذوفة لـ October 1)');
-    // Hide existing field continuously for staff
-    setInterval(function(){
-      var f = document.getElementById('wd-status-field');
-      if(f) f.style.setProperty('display','none','important');
-    }, 500);
-    return;
-  }
-
+              setTimeout
                 closeEditModal();
                 // شيل الفيلد
                 currentRowStatus = null;
@@ -287,19 +265,7 @@
     });
   }
 
-  var observer = new MutationObserver(function(){
-  function getRole(){ try{return (sessionStorage.getItem('wd_role')||localStorage.getItem('wd_role')||'admin').toLowerCase();}catch(e){return 'admin';} }
-  var _role = getRole();
-  if(_role === 'staff'){
-    console.log('STAFF detected - status patch disabled (حالة الكارنيهات محذوفة لـ October 1)');
-    // Hide existing field continuously for staff
-    setInterval(function(){
-      var f = document.getElementById('wd-status-field');
-      if(f) f.style.setProperty('display','none','important');
-    }, 500);
-    return;
-  }
-
+  var observer = new MutationObserver
     var saveBtn = Array.from(document.querySelectorAll('button')).find(b => (b.textContent||'').indexOf('حفظ التعديلات')!==-1);
     if(saveBtn && !document.getElementById('wd-status-field')){
       setTimeout(injectStatusField, 200);
@@ -309,19 +275,7 @@
   
   observer.observe(document.body, {childList:true, subtree:true});
   
-  setInterval(function(){
-  function getRole(){ try{return (sessionStorage.getItem('wd_role')||localStorage.getItem('wd_role')||'admin').toLowerCase();}catch(e){return 'admin';} }
-  var _role = getRole();
-  if(_role === 'staff'){
-    console.log('STAFF detected - status patch disabled (حالة الكارنيهات محذوفة لـ October 1)');
-    // Hide existing field continuously for staff
-    setInterval(function(){
-      var f = document.getElementById('wd-status-field');
-      if(f) f.style.setProperty('display','none','important');
-    }, 500);
-    return;
-  }
-
+  setInterval
     var saveBtn = Array.from(document.querySelectorAll('button')).find(b => (b.textContent||'').indexOf('حفظ التعديلات')!==-1);
     if(saveBtn && !document.getElementById('wd-status-field')){
       injectStatusField();
@@ -330,4 +284,6 @@
   }, 800);
   
   console.log('WD Patch v8 Ready - No reload');
+
+
 })();
