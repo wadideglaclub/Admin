@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cards Delivery</title>
+<link rel="icon" type="image/png" href="./favicon.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body{background:#f9f9f6;margin:0;font-family:Cairo,sans-serif}#root{min-height:100vh}</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+var auth = sessionStorage.getItem('wd_october1_auth') || localStorage.getItem('wd_october1_auth');
+if(auth !== 'true'){location.replace('./index.html');}
+try{
+  var r=localStorage.getItem('wd_role');
+  if(r&&!sessionStorage.getItem('wd_role')){sessionStorage.setItem('wd_role',r);}
+  if(localStorage.getItem('wd_october1_auth')==='true') sessionStorage.setItem('wd_october1_auth','true');
+}catch(e){}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<script src="./texts.js"></script>
+<script src="./sync.js"></script>
+<script src="./admin.js"></script>
+<script src="./logout.js"></script>
+<script src="./status-patch.js"></script>
+<script src="./lookup.js"></script>
+<script>
+// Role guard - light version - won't cause white screen
+(function(){
+  function getRole(){try{return (sessionStorage.getItem('wd_role')||localStorage.getItem('wd_role')||'admin').toLowerCase();}catch(e){return 'admin';}}
+  var isStaff = getRole()==='staff';
+  
+  function showLookup(){
+    var el=document.getElementById('wd-membership-lookup');
+    if(el){el.style.display='block'; el.style.visibility='visible';}
+  }
+  
+  function staffMods(){
+    try{
+      showLookup();
+      // logout red at end
+      document.querySelectorAll('button').forEach(function(b){
+        if((b.textContent||'').includes('خروج') && b.textContent.length<20){
+          b.style.background='#DC2626'; b.style.color='white'; b.style.borderRadius='12px';
+          if(!b.innerHTML.includes('🚪')) b.innerHTML='🚪 خروج';
+          try{var c=b.parentElement;var d=0;while(c&&d<5){if(c.querySelectorAll('button').length>=3){c.appendChild(b);break;}c=c.parentElement;d++;}}catch(e){}
+        }
+      });
+      if(!isStaff) return;
+      
+      // October1: hide dashboard, branches, admin, export, whatsapp
+      document.querySelectorAll('button,a').forEach(function(btn){
+        var t=(btn.textContent||'').trim();
+        if(!t || (btn.closest&&btn.closest('#wd-membership-lookup'))) return;
+        if(t==='لوحة التحكم'||t.includes('لوحة التحكم')) btn.style.display='none';
+        if(t==='الفروع') btn.style.display='none';
+        if(t==='إدارة النظام'||t.includes('إدارة النظام')) btn.style.display='none';
+        if(t.includes('تصدير الكل')||t.includes('تصدير')||t.includes('Excel')||t.includes('شيت')){if(!t.includes('طلبات')) btn.style.display='none';}
+        if(t.toLowerCase().includes('whatsapp')||t.includes('واتساب')) btn.style.display='none';
+      });
+      
+      // make طلبات جديدة default
+      if(!window.__done){
+        document.querySelectorAll('button').forEach(function(b){
+          if(b.textContent.includes('طلبات جديدة')){
+            setTimeout(function(){try{b.click();window.__done=true;}catch(e){}}, 1000);
+          }
+        });
+      }
+      
+      // hide حالة الكارنيهات in edit modal
+      document.querySelectorAll('select').forEach(function(s){
+        var pt=s.parentElement?s.parentElement.textContent:'';
+        if(pt.includes('الحالة')||pt.includes('حالة الكارنيهات')){
+          if(document.querySelector('[class*="modal" i]:not([style*="display: none"])')||s.closest('[role="dialog"]')){
+            s.parentElement.style.display='none';
+          }
+        }
+      });
+      
+    }catch(e){}
+  }
+  
+  setTimeout(staffMods,700);
+  setTimeout(staffMods,1500);
+  setTimeout(staffMods,3000);
+  try{new MutationObserver(staffMods).observe(document.body,{childList:true,subtree:true});}catch(e){}
+  setInterval(staffMods,2500);
+  setInterval(showLookup, 1000);
+})();
+</script>
+</body>
+</html>
