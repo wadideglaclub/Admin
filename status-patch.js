@@ -1,24 +1,20 @@
 
 (function(){
-  function getRole(){ try{return (sessionStorage.getItem('wd_role')||localStorage.getItem('wd_role')||'admin').toLowerCase();}catch(e){return 'admin';} }
-  var isStaff = getRole()==='staff';
-  if(isStaff){
-    console.log('October 1 - حالة الكارنيهات مخفية');
-    setInterval(function(){
-      var f=document.getElementById('wd-status-field');
-      if(f) f.style.setProperty('display','none','important');
-      var s=document.getElementById('wd-status-select');
-      if(s){
-        var p=s.closest('div');
-        if(p && p.parentElement) p.parentElement.style.setProperty('display','none','important');
-      }
-    },500);
-    return;
-  }
-  // Admin only - show حالة الكارنيهات
+  try{
+    var role = (sessionStorage.getItem('wd_role')||localStorage.getItem('wd_role')||'admin').toLowerCase();
+    if(role==='staff'){
+      console.log('October 1 - حالة الكارنيهات مخفية');
+      setInterval(function(){
+        var f=document.getElementById('wd-status-field');
+        if(f) f.style.display='none';
+      },1000);
+      return;
+    }
+  }catch(e){}
+  // Admin only - original code below
 
 
-  console.log("Admin - حالة الكارنيهات ظاهرة");
+  console.log('WD Patch v8 - No reload on edit');
   var currentEditId = null;
   var currentRowStatus = null;
   var currentRowElement = null;
