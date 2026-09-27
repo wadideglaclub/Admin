@@ -231,26 +231,40 @@
   window.WD_IS_STAFF = (role==='staff');
   console.log('Role:', role, 'Staff:', window.WD_IS_STAFF);
 
-  function fixHeader(){
+    function fixHeader(){
     try{
-      // لو أدمن سيبه زي ما هو: أ أندرو أكرم ادمن
-      if(!window.WD_IS_STAFF) return;
-      // October 1 فقط: خ خدمة العملاء موظفين
-      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-      var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
-      nodes.forEach(function(n){
-        var v=n.nodeValue;
-        if(!v) return;
-        if(v.indexOf('أندرو أكرم أدمن')!==-1) n.nodeValue=v.replace('أندرو أكرم أدمن','خدمة العملاء');
-        else if(v.indexOf('أندرو أكرم')!==-1) n.nodeValue=v.replace('أندرو أكرم','خدمة العملاء');
+      if(!window.WD_IS_STAFF) return; // Admin سيبه زي ما هو
+      // فقط الهيدر اللي فوق (أول 120 بكسل)
+      var header = document.querySelector('header') || document.body.firstElementChild;
+      var headerEls = [];
+      if(header){
+        // هات كل العناصر اللي فوق بس
+        document.querySelectorAll('div, span, button').forEach(function(el){
+          try{
+            var r = el.getBoundingClientRect();
+            if(r.top>=0 && r.top<120 && r.width>20 && r.width<400){
+              headerEls.push(el);
+            }
+          }catch(e){}
+        });
+      }
+      // 1. غير أندرو أكرم أدمن -> خدمة العملاء بس في الهيدر
+      headerEls.forEach(function(el){
+        if(el.children.length>0) return;
+        var t = el.textContent.trim();
+        if(t.indexOf('أندرو أكرم أدمن')!==-1) el.textContent = t.replace('أندرو أكرم أدمن','خدمة العملاء');
+        else if(t==='أندرو أكرم') el.textContent='خدمة العملاء';
       });
-      document.querySelectorAll('div').forEach(function(div){
-        if(div.textContent.trim()==='أ' && div.className.indexOf('rounded-full')!==-1 && div.offsetWidth < 60){
+      // الدائرة أ -> خ بس في الهيدر
+      headerEls.forEach(function(div){
+        if(div.textContent.trim()==='أ' && div.className.indexOf('rounded-full')!==-1){
           div.textContent='خ';
         }
       });
-      document.querySelectorAll('button, span').forEach(function(el){
-        if(el.textContent.trim()==='أدمن' && el.children.length===0){
+      // البادج الأصفر أدمن -> موظفين بس في الهيدر
+      headerEls.forEach(function(el){
+        if(el.children.length>0) return;
+        if(el.textContent.trim()==='أدمن'){
           if(el.closest && el.closest('#wd-membership-lookup')) return;
           el.textContent='موظفين';
         }
@@ -331,7 +345,6 @@
         if(p && p.parentElement) p.parentElement.style.setProperty('display','none','important');
       }
     }catch(e){}
-    // 4. حذف شاشة واتساب للموظفين فقط
     try{
       document.querySelectorAll('div').forEach(function(d){
         if(d.textContent.indexOf('إرسال رسالة واتساب للعميل')!==-1 && d.offsetWidth>200){
