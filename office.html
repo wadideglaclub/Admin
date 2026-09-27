@@ -231,11 +231,8 @@
   window.WD_IS_STAFF = (role==='staff');
   console.log('Role:', role, 'Staff:', window.WD_IS_STAFF);
 
-    function fixHeader(){
+  function fixHeader(){
     try{
-      var isStaff = window.WD_IS_STAFF;
-      if(!isStaff) return;
-      // 1. أندرو أكرم -> خدمة العملاء (الأبيض)
       var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
       var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
       nodes.forEach(function(n){
@@ -245,57 +242,14 @@
         else if(v.indexOf('أندرو أكرم')!==-1) n.nodeValue=v.replace('أندرو أكرم','خدمة العملاء');
       });
       document.querySelectorAll('div').forEach(function(div){
-        if(div.textContent.trim()==='أ' && div.className.indexOf('rounded-full')!==-1) div.textContent='خ';
-      });
-      // 2. لو لسه فيه 2 موظفين، خلي الأول خدمة العملاء والتاني موظفين
-      document.querySelectorAll('div').forEach(function(container){
-        if(container.offsetHeight>30 && container.offsetHeight<100 && container.offsetWidth>150 && container.offsetWidth<400){
-          var spans = container.querySelectorAll('span, div');
-          var mo = [];
-          spans.forEach(function(s){
-            if(s.children.length===0){
-              var t=s.textContent.trim();
-              if(t==='موظفين' || t==='خدمة العملاء' || t==='خدمة عملاء'){
-                mo.push(s);
-              }
-            }
-          });
-          if(mo.length===2){
-            mo[0].textContent='خدمة العملاء';
-            mo[1].textContent='موظفين';
-          } else if(mo.length===1){
-            // لو واحد بس، شوف هو بادج ولا نص
-            if(mo[0].className && mo[0].className.indexOf('rounded')!==-1){
-              mo[0].textContent='موظفين'; // البادج
-            } else {
-              // حاول تلاقي النص التاني
-              container.querySelectorAll('*').forEach(function(el){
-                if(el.children.length===0 && el.textContent.trim()==='خدمة العملاء'){
-                  // ده الأبيض
-                }
-              });
-            }
-          }
+        if(div.textContent.trim()==='أ' && div.className.indexOf('rounded-full')!==-1 && div.offsetWidth < 60){
+          div.textContent='خ';
         }
       });
-      // 3. أي أدمن في الهيدر -> موظفين (للأصفر)
-      document.querySelectorAll('span, div').forEach(function(el){
-        if(el.children.length>0) return;
-        if(el.textContent.trim()==='أدمن'){
+      document.querySelectorAll('button, span').forEach(function(el){
+        if(el.textContent.trim()==='أدمن' && el.children.length===0){
           if(el.closest && el.closest('#wd-membership-lookup')) return;
-          if(el.getBoundingClientRect().top<200) el.textContent='موظفين';
-        }
-      });
-      // 4. تأكيد نهائي: خ + خدمة العملاء + موظفين
-      document.querySelectorAll('div').forEach(function(div){
-        if(div.textContent.indexOf('خدمة العملاء')!==-1 && div.textContent.indexOf('موظفين')!==-1 && div.offsetHeight<100){
-          var parts = div.querySelectorAll('span, div');
-          var foundWhite = false;
-          parts.forEach(function(p){
-            if(p.children.length===0 && p.textContent.trim()==='خدمة العملاء' && !foundWhite){
-              foundWhite=true;
-            }
-          });
+          el.textContent='موظفين';
         }
       });
     }catch(e){}
@@ -373,6 +327,15 @@
         var p = sel.closest('div');
         if(p && p.parentElement) p.parentElement.style.setProperty('display','none','important');
       }
+    }catch(e){}
+    // 4. حذف شاشة واتساب للموظفين
+    try{
+      document.querySelectorAll('div').forEach(function(d){
+        if(d.textContent.indexOf('إرسال رسالة واتساب للعميل')!==-1 && d.offsetWidth>200){
+          var m=d;
+          for(var i=0;i<6;i++){ m=m.parentElement; if(!m) break; if(m.className.indexOf('fixed')!==-1){ m.style.display='none'; break; } }
+        }
+      });
     }catch(e){}
   }
 
