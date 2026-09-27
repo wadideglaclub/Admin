@@ -235,7 +235,7 @@
     try{
       var isStaff = window.WD_IS_STAFF;
       if(!isStaff) return; // Admin ملكش دعوة بيه - سيبه زي ما هو
-      // October 1 فقط: حط موظفين بدل خدمة العملاء وخدمة عملاء مكان أندرو أكرم
+      // October 1 فقط: حط موظفين وخدمة عملاء مكان أندرو أكرم
       var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
       var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
       nodes.forEach(function(n){
@@ -245,9 +245,8 @@
           n.nodeValue=v.replace('أندرو أكرم أدمن','خدمة عملاء');
         } else if(v.indexOf('أندرو أكرم')!==-1){
           n.nodeValue=v.replace('أندرو أكرم','خدمة عملاء');
-        } else if(v.trim()==='خدمة عملاء'){
-          n.nodeValue=v.replace('خدمة عملاء','موظفين');
-        }
+        else if(v.trim()==='خدمة عملاء'){
+  n.nodeValue=v.replace('خدمة عملاء','خدمة العملاء'));
       });
       document.querySelectorAll('div').forEach(function(div){
         if(div.textContent.trim()==='أ' && div.className.indexOf('rounded-full')!==-1 && div.offsetWidth < 60){
@@ -259,7 +258,7 @@
         var t = el.textContent.trim();
         if(t==='أدمن'){
           if(el.closest && el.closest('#wd-membership-lookup')) return;
-          el.textContent='موظفين';
+          el.textContent='خدمة عملاء';
         }
         if(t==='خدمة عملاء'){
           if(el.closest && el.closest('#wd-membership-lookup')) return;
