@@ -261,7 +261,7 @@
           if(btn.closest && btn.closest('#wd-membership-lookup')) return;
           btn.style.setProperty('display','none','important');
         }
-        // Also hide green whatsapp icons - look for buttons with green background
+        // Also hide green whatsapp icons - hide look for buttons with green background
         var bg = window.getComputedStyle(btn).backgroundColor;
         if((btn.innerHTML||'').indexOf('wa.me')!==-1 || (btn.innerHTML||'').indexOf('WhatsApp')!==-1){
           btn.style.setProperty('display','none','important');
@@ -276,7 +276,7 @@
       });
     }catch(e){}
 
-    // 3. حذف حالة الكارنيهات dropdown في التعديل
+    
     try{
       var field = document.getElementById('wd-status-field');
       if(field) field.style.setProperty('display','none','important');
