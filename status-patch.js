@@ -208,7 +208,7 @@
           var editId=currentEditId;
           if(newStatus && editId){
             // استنى الحفظ الأصلي يخلص
-            setTimeout
+            setTimeout(function(){
               var reqs=getRequests();
               for(var r=0;r<reqs.length;r++){
                 if(reqs[r].id===editId){ 
@@ -221,7 +221,7 @@
               // حدث الصف في مكانه من غير Reload
               updateRowBadgeInPlace(newStatus);
               // اقفل المودال من غير ما ترجع للرئيسية
-              setTimeout
+              setTimeout(function(){
                 closeEditModal();
                 // شيل الفيلد
                 currentRowStatus = null;
@@ -265,7 +265,7 @@
     });
   }
 
-  var observer = new MutationObserver
+  var observer = new MutationObserver(function(){
     var saveBtn = Array.from(document.querySelectorAll('button')).find(b => (b.textContent||'').indexOf('حفظ التعديلات')!==-1);
     if(saveBtn && !document.getElementById('wd-status-field')){
       setTimeout(injectStatusField, 200);
@@ -275,7 +275,7 @@
   
   observer.observe(document.body, {childList:true, subtree:true});
   
-  setInterval
+  setInterval(function(){
     var saveBtn = Array.from(document.querySelectorAll('button')).find(b => (b.textContent||'').indexOf('حفظ التعديلات')!==-1);
     if(saveBtn && !document.getElementById('wd-status-field')){
       injectStatusField();
