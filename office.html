@@ -233,6 +233,9 @@
 
   function fixHeader(){
     try{
+      // لو أدمن سيبه زي ما هو: أ أندرو أكرم ادمن
+      if(!window.WD_IS_STAFF) return;
+      // October 1 فقط: خ خدمة العملاء موظفين
       var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
       var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
       nodes.forEach(function(n){
@@ -328,7 +331,7 @@
         if(p && p.parentElement) p.parentElement.style.setProperty('display','none','important');
       }
     }catch(e){}
-    // 4. حذف شاشة واتساب للموظفين
+    // 4. حذف شاشة واتساب للموظفين فقط
     try{
       document.querySelectorAll('div').forEach(function(d){
         if(d.textContent.indexOf('إرسال رسالة واتساب للعميل')!==-1 && d.offsetWidth>200){
