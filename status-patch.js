@@ -1,20 +1,24 @@
 
 (function(){
   function getRole(){ try{return (sessionStorage.getItem('wd_role')||localStorage.getItem('wd_role')||'admin').toLowerCase();}catch(e){return 'admin';} }
-  if(getRole()==='staff'){
+  var isStaff = getRole()==='staff';
+  if(isStaff){
     console.log('October 1 - حالة الكارنيهات مخفية');
     setInterval(function(){
       var f=document.getElementById('wd-status-field');
       if(f) f.style.setProperty('display','none','important');
       var s=document.getElementById('wd-status-select');
-      if(s && s.parentElement) s.parentElement.parentElement.style.setProperty('display','none','important');
+      if(s){
+        var p=s.closest('div');
+        if(p && p.parentElement) p.parentElement.style.setProperty('display','none','important');
+      }
     },500);
     return;
   }
-  // Admin only - original logic
+  // Admin only - show حالة الكارنيهات
 
 
-  console.log('WD Patch v8 - No reload on edit');
+  console.log("Admin - حالة الكارنيهات ظاهرة");
   var currentEditId = null;
   var currentRowStatus = null;
   var currentRowElement = null;
