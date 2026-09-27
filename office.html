@@ -231,94 +231,42 @@
   window.WD_IS_STAFF = (role==='staff');
   console.log('Role:', role, 'Staff:', window.WD_IS_STAFF);
 
-    function fixHeader(){
+  function fixHeader(){
     try{
       var isStaff = window.WD_IS_STAFF;
-      if(!isStaff) return;
-      // October 1 فقط: الأبيض = خدمة العملاء، الأصفر = موظفين
+      if(!isStaff) return; // Admin ملكش دعوة بيه - سيبه زي ما هو
+      // October 1 فقط: حط موظفين بدل خدمة العملاء وخدمة عملاء مكان أندرو أكرم
       var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
       var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
       nodes.forEach(function(n){
         var v=n.nodeValue;
         if(!v) return;
         if(v.indexOf('أندرو أكرم أدمن')!==-1){
-          n.nodeValue=v.replace('أندرو أكرم أدمن','خدمة العملاء');
+          n.nodeValue=v.replace('أندرو أكرم أدمن','خدمة عملاء');
         } else if(v.indexOf('أندرو أكرم')!==-1){
-          n.nodeValue=v.replace('أندرو أكرم','خدمة العملاء');
+          n.nodeValue=v.replace('أندرو أكرم','خدمة عملاء');
+        } else if(v.trim()==='خدمة عملاء'){
+          n.nodeValue=v.replace('خدمة عملاء','موظفين');
         }
       });
-      document.querySelectorAll('div').forEach(function(div){
-        if(div.textContent.trim()==='أ' && div.className.indexOf('rounded-full')!==-1){
-          div.textContent='خ';
-        }
-      });
-      // الأصفر (البادج) يفضل موظفين، الأبيض يبقى خدمة العملاء
-      document.querySelectorAll('button, span, div').forEach(function(el){
-        if(el.children.length>0) return;
-        var t = el.textContent.trim();
-        if(t==='أدمن'){
-          if(el.closest && el.closest('#wd-membership-lookup')) return;
-          el.textContent='موظفين'; // الأصفر يفضل موظفين
-        }
-        if(t==='خدمة عملاء'){
-          if(el.closest && el.closest('#wd-membership-lookup')) return;
-          if(el.offsetWidth < 200 || el.getBoundingClientRect().top < 200){
-            // ده الأصفر - سيبه موظفين
-            el.textContent='موظفين';
-          }
-        }
-        if(t==='موظفين'){
-          // لو ده النص الأبيض (اللي في الصورة الثانية) حوله لخدمة العملاء
-          // نميز بالأبيض: عنصر كبير شوية ومش البادج الأصفر
-          var isYellowBadge = el.className && (el.className.indexOf('bg-yellow')!==-1 || el.className.indexOf('bg-[#')!==-1 || el.style.backgroundColor==='');
-          // طريقة أسهل: لو العنصر عرضه أكبر من البادج
-          if(el.offsetWidth > 80 && el.offsetWidth < 200){
-            // ده غالبا الأبيض
-            if(el.closest){
-              var parent = el.closest('div');
-              if(parent && parent.textContent.indexOf('موظفين')!==-1){
-                // فيه اتنين موظفين - واحد أبيض وواحد أصفر
-                // الأبيض نحوله لخدمة العملاء
-                if(el.getBoundingClientRect().left > 100){ // الأبيض في النص
-                  el.textContent='خدمة العملاء';
-                }
-              }
-            }
-          }
-        }
-      });
-
-      // حل نهائي ومباشر: لو لسه الاتنين موظفين، خلي الأول خدمة العملاء
-      document.querySelectorAll('div').forEach(function(container){
-        if(container.children.length>=2 && container.textContent.indexOf('موظفين')!==-1){
-          var children = container.querySelectorAll('span, div');
-          var moCount = 0;
-          var moElements = [];
-          children.forEach(function(ch){
-            if(ch.children.length===0 && ch.textContent.trim()==='موظفين'){
-              moCount++;
-              moElements.push(ch);
-            }
-          });
-          if(moCount===2){
-            // الأول (الأبيض) = خدمة العملاء، الثاني (الأصفر) = موظفين
-            moElements[0].textContent = 'خدمة العملاء';
-            moElements[1].textContent = 'موظفين';
-          }
-        }
-      });
-
-    }catch(e){}
-  });
       document.querySelectorAll('div').forEach(function(div){
         if(div.textContent.trim()==='أ' && div.className.indexOf('rounded-full')!==-1 && div.offsetWidth < 60){
           div.textContent='خ';
         }
       });
-      document.querySelectorAll('button, span').forEach(function(el){
-        if(el.textContent.trim()==='أدمن' && el.children.length===0){
+      document.querySelectorAll('button, span, div').forEach(function(el){
+        if(el.children.length>0) return;
+        var t = el.textContent.trim();
+        if(t==='أدمن'){
           if(el.closest && el.closest('#wd-membership-lookup')) return;
-          el.textContent='خدمة عملاء';
+          el.textContent='موظفين';
+        }
+        if(t==='خدمة عملاء'){
+          if(el.closest && el.closest('#wd-membership-lookup')) return;
+          // Only if in header
+          if(el.offsetWidth < 200 || el.getBoundingClientRect().top < 200){
+            el.textContent='موظفين';
+          }
         }
       });
     }catch(e){}
@@ -396,6 +344,24 @@
         var p = sel.closest('div');
         if(p && p.parentElement) p.parentElement.style.setProperty('display','none','important');
       }
+    }catch(e){}
+
+    // 4. حذف شاشة إرسال رسالة واتساب للعميل من October 1 فقط - الصورة الأولى
+    try{
+      document.querySelectorAll('div').forEach(function(div){
+        if(div.textContent && div.textContent.indexOf('إرسال رسالة واتساب للعميل')!==-1){
+          var modal = div;
+          for(var i=0;i<8;i++){
+            if(!modal || !modal.parentElement) break;
+            modal = modal.parentElement;
+            if(modal.className && modal.className.indexOf('fixed')!==-1){
+              modal.style.setProperty('display','none','important');
+              document.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape', code:'Escape'}));
+              break;
+            }
+          }
+        }
+      });
     }catch(e){}
   }
 
