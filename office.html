@@ -231,43 +231,72 @@
   window.WD_IS_STAFF = (role==='staff');
   console.log('Role:', role, 'Staff:', window.WD_IS_STAFF);
 
-  function fixHeader(){
+    function fixHeader(){
     try{
       var isStaff = window.WD_IS_STAFF;
-      if(!isStaff) return; // Admin ملكش دعوة بيه - سيبه زي ما هو
-      // October 1 فقط: حط موظفين بدل خدمة العملاء وخدمة عملاء مكان أندرو أكرم
+      if(!isStaff) return;
+      // 1. أندرو أكرم -> خدمة العملاء (الأبيض)
       var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
       var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
       nodes.forEach(function(n){
         var v=n.nodeValue;
         if(!v) return;
-        if(v.indexOf('أندرو أكرم أدمن')!==-1){
-          n.nodeValue=v.replace('أندرو أكرم أدمن','خدمة عملاء');
-        } else if(v.indexOf('أندرو أكرم')!==-1){
-          n.nodeValue=v.replace('أندرو أكرم','خدمة عملاء');
-        } else if(v.trim()==='خدمة عملاء'){
-          n.nodeValue=v.replace('خدمة عملاء','موظفين');
-        }
+        if(v.indexOf('أندرو أكرم أدمن')!==-1) n.nodeValue=v.replace('أندرو أكرم أدمن','خدمة العملاء');
+        else if(v.indexOf('أندرو أكرم')!==-1) n.nodeValue=v.replace('أندرو أكرم','خدمة العملاء');
       });
       document.querySelectorAll('div').forEach(function(div){
-        if(div.textContent.trim()==='أ' && div.className.indexOf('rounded-full')!==-1 && div.offsetWidth < 60){
-          div.textContent='خ';
+        if(div.textContent.trim()==='أ' && div.className.indexOf('rounded-full')!==-1) div.textContent='خ';
+      });
+      // 2. لو لسه فيه 2 موظفين، خلي الأول خدمة العملاء والتاني موظفين
+      document.querySelectorAll('div').forEach(function(container){
+        if(container.offsetHeight>30 && container.offsetHeight<100 && container.offsetWidth>150 && container.offsetWidth<400){
+          var spans = container.querySelectorAll('span, div');
+          var mo = [];
+          spans.forEach(function(s){
+            if(s.children.length===0){
+              var t=s.textContent.trim();
+              if(t==='موظفين' || t==='خدمة العملاء' || t==='خدمة عملاء'){
+                mo.push(s);
+              }
+            }
+          });
+          if(mo.length===2){
+            mo[0].textContent='خدمة العملاء';
+            mo[1].textContent='موظفين';
+          } else if(mo.length===1){
+            // لو واحد بس، شوف هو بادج ولا نص
+            if(mo[0].className && mo[0].className.indexOf('rounded')!==-1){
+              mo[0].textContent='موظفين'; // البادج
+            } else {
+              // حاول تلاقي النص التاني
+              container.querySelectorAll('*').forEach(function(el){
+                if(el.children.length===0 && el.textContent.trim()==='خدمة العملاء'){
+                  // ده الأبيض
+                }
+              });
+            }
+          }
         }
       });
-      document.querySelectorAll('button, span, div').forEach(function(el){
+      // 3. أي أدمن في الهيدر -> موظفين (للأصفر)
+      document.querySelectorAll('span, div').forEach(function(el){
         if(el.children.length>0) return;
-        var t = el.textContent.trim();
-        if(t==='أدمن'){
+        if(el.textContent.trim()==='أدمن'){
           if(el.closest && el.closest('#wd-membership-lookup')) return;
-          el.textContent='موظفين';
+          if(el.getBoundingClientRect().top<200) el.textContent='موظفين';
         }
-        if(t==='موظفين'){
-// لو ده البادج الأصفر سيبه موظفين، لو الأبيض خليه خدمة العملاء
-var isYellow = el.className && el.className.indexOf('bg-')!==-1;
-  if(!isYellow && el.offsetWidth > 70){
-    el.textContent='خدمة العملاء';
-  }
-}
+      });
+      // 4. تأكيد نهائي: خ + خدمة العملاء + موظفين
+      document.querySelectorAll('div').forEach(function(div){
+        if(div.textContent.indexOf('خدمة العملاء')!==-1 && div.textContent.indexOf('موظفين')!==-1 && div.offsetHeight<100){
+          var parts = div.querySelectorAll('span, div');
+          var foundWhite = false;
+          parts.forEach(function(p){
+            if(p.children.length===0 && p.textContent.trim()==='خدمة العملاء' && !foundWhite){
+              foundWhite=true;
+            }
+          });
+        }
       });
     }catch(e){}
   }
@@ -344,24 +373,6 @@ var isYellow = el.className && el.className.indexOf('bg-')!==-1;
         var p = sel.closest('div');
         if(p && p.parentElement) p.parentElement.style.setProperty('display','none','important');
       }
-    }catch(e){}
-
-    // 4. حذف شاشة إرسال رسالة واتساب للعميل من October 1 فقط - الصورة الأولى
-    try{
-      document.querySelectorAll('div').forEach(function(div){
-        if(div.textContent && div.textContent.indexOf('إرسال رسالة واتساب للعميل')!==-1){
-          var modal = div;
-          for(var i=0;i<8;i++){
-            if(!modal || !modal.parentElement) break;
-            modal = modal.parentElement;
-            if(modal.className && modal.className.indexOf('fixed')!==-1){
-              modal.style.setProperty('display','none','important');
-              document.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape', code:'Escape'}));
-              break;
-            }
-          }
-        }
-      });
     }catch(e){}
   }
 
