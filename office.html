@@ -181,215 +181,123 @@
 <script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
 
 <script>
-// FINAL V7 - حسب الصور الثلاثة
+// Minimal safe enforcement - NO white screen
 (function(){
-  function getRole(){ try{return (sessionStorage.getItem('wd_role')||localStorage.getItem('wd_role')||'admin').toLowerCase();}catch(e){return 'admin';} }
-  var role = getRole();
-  var isStaff = role==='staff';
-  console.log('Role:', role);
+  try{
+    var role = (sessionStorage.getItem('wd_role')||localStorage.getItem('wd_role')||'admin').toLowerCase();
+    var isStaff = role==='staff';
+    console.log('Role:', role);
 
-  function setHeader(){
-    try{
-      // Find header area with user info
-      // For Admin: أ أندرو أكرم ادمن
-      // For October1: خ خدمة عملاء موظفين
-      var found = false;
-      document.querySelectorAll('div, span, button').forEach(function(el){
-        var txt = (el.textContent||'').trim();
-        // Look for the pill with خ or أ
-        if(txt.indexOf('أندرو أكرم')!==-1 || txt.indexOf('خدمة عملاء')!==-1){
-          var parent = el.closest('div');
-          // Check if this is in top header (black bar)
-          var isInHeader = false;
-          var p = el;
-          for(var i=0;i<5;i++){ if(!p) break; if(p.className && p.className.indexOf('bg-black')!==-1 || p.className.indexOf('bg-[#')!==-1){ isInHeader=true; break; } p=p.parentElement; }
-          // Simpler: check if parent contains نادي وادي دجلة
-          if(document.body.innerHTML.indexOf('نادي وادي دجلة')!==-1){
-            // We are in header
-          }
-        }
-      });
-
-      // Direct fix: find the avatar + name container in header
-      // The header structure: div with W logo, and left side has avatar + name
-      var header = document.querySelector('header') || document.querySelector('div[class*="bg-black"]') || document.body;
-      // Walk all divs that look like user badge
-      document.querySelectorAll('div').forEach(function(div){
-        var t = div.textContent||'';
-        if(t.indexOf('أندرو أكرم')!==-1){
-          // This div contains the name
-          if(isStaff){
-            // October 1: خ خدمة عملاء موظفين
-            div.childNodes.forEach(function(n){
-              if(n.nodeType===3 && n.nodeValue.indexOf('أندرو')!==-1){
-                n.nodeValue = n.nodeValue.replace(/أندرو أكرم أدمن/g,'').replace(/أندرو أكرم/g,'').replace(/خدمة عملاء/g,'').trim();
-              }
-            });
-            // Replace text content precisely
-            if(div.textContent.indexOf('أندرو')!==-1){
-              // Keep structure but change text
-              var html = div.innerHTML;
-              html = html.replace(/أندرو أكرم أدمن/g,'خدمة عملاء موظفين').replace(/أندرو أكرم/g,'خدمة عملاء موظفين').replace(/خدمة عملاء/g,'خدمة عملاء موظفين').replace(/خدمة عملاء موظفين موظفين/g,'خدمة عملاء موظفين');
-              // Only if this div is the badge
-              if(html.indexOf('خدمة عملاء موظفين')!==-1 || t.length < 50){
-                // Fix avatar letter
-                var avatar = div.querySelector('div');
-                if(avatar && avatar.textContent.trim()==='خ'){
-                  // already correct
-                }
-                // Set final
-                if(div.children.length>0){
-                  // Find text nodes
-                  Array.from(div.childNodes).forEach(function(c){
-                    if(c.nodeType===3 && c.nodeValue.trim().length>0){
-                      if(c.nodeValue.indexOf('أندرو')!==-1 || c.nodeValue.indexOf('خدمة')!==-1){
-                        c.nodeValue = isStaff ? ' خدمة عملاء موظفين ' : ' أندرو أكرم ادمن ';
-                      }
-                    }
-                  });
-                }
-              }
-            }
-          } else {
-            // Admin: أ أندرو أكرم ادمن
-            div.childNodes.forEach(function(n){
-              if(n.nodeType===3 && (n.nodeValue.indexOf('أندرو')!==-1 || n.nodeValue.indexOf('خدمة')!==-1)){
-                n.nodeValue = ' أندرو أكرم ادمن ';
-              }
-            });
-          }
-        }
-      });
-
-      // Fix avatar letter and pill
-      document.querySelectorAll('div').forEach(function(div){
-        if(div.className && div.className.indexOf('rounded-full')!==-1 && div.offsetWidth < 60 && div.offsetHeight < 60){
-          var txt = div.textContent.trim();
-          if(txt==='خ' || txt==='أ' || txt==='خ خدمة' || txt.length===1){
-            div.textContent = isStaff ? 'خ' : 'أ';
-          }
-        }
-      });
-
-      // Fix the pill text that says خدمة عملاء
-      document.querySelectorAll('span, div').forEach(function(el){
-        if(el.children.length===0){
+    // Fix header - simple, safe, no DOM walk
+    function fixHeader(){
+      try{
+        // Find all elements with exact text أندرو أكرم أدمن
+        document.querySelectorAll('div, span').forEach(function(el){
+          if(el.children.length>0) return; // only leaf nodes
           var t = el.textContent.trim();
-          if(t==='خدمة عملاء'){
-            if(isStaff){
-              el.textContent='خدمة عملاء موظفين';
-            } else {
-              el.textContent='أندرو أكرم ادمن';
-              // Actually for admin, the pill should be خدمة عملاء? No, user wants أ أندرو أكرم ادمن
-              // So we need to set two parts: avatar أ and text أندرو أكرم ادمن
-              // The pill with خدمة عملاء should become أندرو أكرم ادمن for admin
-              // But spec says: October1 = خ خدمة عملاء موظفين, Admin = أ أندرو أكرم ادمن
-              // So for admin, change خدمة عملاء to أندرو أكرم ادمن
-              el.textContent = isStaff ? 'خدمة عملاء موظفين' : 'أندرو أكرم ادمن';
+          if(t==='أندرو أكرم أدمن' || t==='أندرو أكرم'){
+            el.textContent = isStaff ? 'خدمة عملاء موظفين' : 'أندرو أكرم ادمن';
+          }
+          if(t==='خدمة عملاء' && !isStaff){
+            // For admin, change خدمة عملاء to أندرو أكرم ادمن if it's the name pill
+            var parent = el.parentElement;
+            if(parent && parent.textContent.indexOf('أندرو')===-1){
+              // This is the admin pill that was changed before, restore to admin name
+              el.textContent = 'أندرو أكرم ادمن';
             }
           }
           if(t==='خدمة عملاء موظفين' && !isStaff){
-            el.textContent='أندرو أكرم ادمن';
+            el.textContent = 'أندرو أكرم ادمن';
           }
-          if(t==='أندرو أكرم ادمن' && isStaff){
-            el.textContent='خدمة عملاء موظفين';
+          if(t==='أ' || t==='خ'){
+            if(el.className && el.className.indexOf('rounded-full')!==-1){
+              el.textContent = isStaff ? 'خ' : 'أ';
+            }
           }
+        });
+        // Special: ensure October 1 shows خ خدمة عملاء موظفين
+        if(isStaff){
+          document.querySelectorAll('div').forEach(function(div){
+            if(div.textContent.trim()==='خدمة عملاء'){
+              div.textContent='خدمة عملاء موظفين';
+            }
+          });
         }
-      });
-    }catch(e){ console.log('header fix error', e); }
-  }
-
-  function enforce(){
-    // For staff only - hide dashboard, branches, whatsapp, status
-    if(!isStaff) return;
-    try{
-      // Hide nav buttons
-      document.querySelectorAll('nav button, header button').forEach(function(btn){
-        var txt = (btn.textContent||'').trim();
-        if(txt.indexOf('لوحة التحكم')!==-1 || txt.indexOf('الفروع')!==-1 || txt.indexOf('12 فرع')!==-1 || txt.indexOf('إدارة النظام')!==-1){
-          if(txt.indexOf('طلبات جديدة')!==-1) return;
-          if(txt.length < 60) btn.style.setProperty('display','none','important');
-        }
-      });
-      var ab=document.getElementById('wd-admin-btn');
-      if(ab) ab.style.setProperty('display','none','important');
-
-      // Hide whatsapp icon completely - الصورة الثالثة
-      document.querySelectorAll('button, div, span, a').forEach(function(el){
-        // Check if it's whatsapp button (green)
-        var html = (el.innerHTML||'') + (el.textContent||'');
-        if(html.indexOf('whatsapp')!==-1 || html.indexOf('WhatsApp')!==-1 || html.indexOf('واتساب')!==-1){
-          if(el.closest && el.closest('#wd-membership-lookup')) return;
-          el.style.setProperty('display','none','important');
-        }
-        // Also hide by green background or whatsapp svg
-        if(el.tagName==='BUTTON' && el.querySelector('svg')){
-          var svg = el.innerHTML;
-          if(svg.indexOf('WhatsApp')!==-1 || svg.indexOf('whatsapp')!==-1 || el.getAttribute('title')==='WhatsApp'){
-            el.style.setProperty('display','none','important');
-          }
-        }
-      });
-      // Hide whatsapp column button specifically - green button with WhatsApp icon
-      document.querySelectorAll('td button').forEach(function(btn){
-        var bg = window.getComputedStyle(btn).backgroundColor;
-        // WhatsApp button is green #25D366 or contains whatsapp image
-        if((btn.innerHTML||'').toLowerCase().indexOf('whatsapp')!==-1 || btn.innerHTML.indexOf('WApp')!==-1 || btn.innerHTML.indexOf('whats')!==-1){
-          btn.style.setProperty('display','none','important');
-        }
-        // Check if parent td has whatsapp
-        if(btn.parentElement && btn.parentElement.innerHTML.toLowerCase().indexOf('whatsapp')!==-1){
-          // Don't hide whole td, just button
-          if(btn.tagName==='BUTTON') btn.style.setProperty('display','none','important');
-        }
-      });
-      // Direct: hide all buttons that have green whatsapp image
-      document.querySelectorAll('img').forEach(function(img){
-        if((img.src||'').toLowerCase().indexOf('whatsapp')!==-1 || (img.alt||'').toLowerCase().indexOf('whatsapp')!==-1){
-          var btn = img.closest('button');
-          if(btn) btn.style.setProperty('display','none','important');
-        }
-      });
-
-      // Hide status field
-      var f=document.getElementById('wd-status-field');
-      if(f) f.style.setProperty('display','none','important');
-      var s=document.getElementById('wd-status-select');
-      if(s){
-        var p=s.closest('div');
-        if(p) p.style.setProperty('display','none','important');
-      }
-    }catch(e){}
-  }
-
-  function forceNewRequests(){
-    if(!isStaff) return;
-    if(window._staffNavDone) return;
-    try{
-      document.querySelectorAll('button').forEach(function(b){
-        if((b.textContent||'').trim()==='طلبات جديدة' && b.offsetParent!==null){
-          b.click();
-          window._staffNavDone=true;
-        }
-      });
-    }catch(e){}
-  }
-
-  function boot(){
-    setHeader();
-    enforce();
-    if(isStaff){
-      setTimeout(forceNewRequests, 700);
-      setTimeout(forceNewRequests, 1800);
+      }catch(e){}
     }
-    try{
-      new MutationObserver(function(){ setHeader(); enforce(); }).observe(document.body,{childList:true, subtree:true});
-    }catch(e){}
-    setInterval(function(){ setHeader(); enforce(); }, 1000);
-  }
 
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
-  else setTimeout(boot, 400);
+    function hideForStaff(){
+      if(!isStaff) return;
+      try{
+        // Hide nav buttons only - لوحة التحكم + الفروع + إدارة النظام
+        document.querySelectorAll('nav button').forEach(function(btn){
+          var txt = (btn.textContent||'').trim();
+          if(txt==='لوحة التحكم' || txt.indexOf('الفروع')!==-1 || txt.indexOf('12 فرع')!==-1 || txt.indexOf('إدارة النظام')!==-1 || txt.indexOf('ادارة النظام')!==-1){
+            if(txt.indexOf('طلبات جديدة')!==-1) return;
+            btn.style.display='none';
+          }
+        });
+        var ab=document.getElementById('wd-admin-btn');
+        if(ab) ab.style.display='none';
+
+        // Hide whatsapp - only for October 1
+        document.querySelectorAll('button').forEach(function(btn){
+          var txt = btn.textContent||'';
+          var html = btn.innerHTML||'';
+          if(txt.indexOf('واتساب')!==-1 || html.toLowerCase().indexOf('whatsapp')!==-1){
+            if(btn.closest && btn.closest('#wd-membership-lookup')) return;
+            btn.style.display='none';
+          }
+        });
+        // Hide green whatsapp buttons in table
+        document.querySelectorAll('td').forEach(function(td){
+          var btn = td.querySelector('button');
+          if(btn && (btn.innerHTML||'').toLowerCase().indexOf('whatsapp')!==-1){
+            btn.style.display='none';
+          }
+        });
+
+        // Hide حالة الكارنيهات
+        var f=document.getElementById('wd-status-field');
+        if(f) f.style.display='none';
+        var s=document.getElementById('wd-status-select');
+        if(s && s.parentElement) s.parentElement.parentElement.style.display='none';
+      }catch(e){}
+    }
+
+    function forceNewRequests(){
+      if(!isStaff) return;
+      if(window._staffNavDone) return;
+      try{
+        document.querySelectorAll('button').forEach(function(b){
+          if(b.textContent.trim()==='طلبات جديدة' && b.offsetParent!==null){
+            b.click();
+            window._staffNavDone=true;
+          }
+        });
+      }catch(e){}
+    }
+
+    function boot(){
+      fixHeader();
+      hideForStaff();
+      if(isStaff){
+        setTimeout(forceNewRequests, 800);
+        setTimeout(forceNewRequests, 2000);
+      }
+      // Observer - only for header and nav, not whole body
+      try{
+        var observer = new MutationObserver(function(){
+          fixHeader();
+          hideForStaff();
+        });
+        observer.observe(document.body, {childList:true, subtree:true});
+      }catch(e){}
+    }
+
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+    else setTimeout(boot, 500);
+  }catch(e){ console.log('Enforcement error', e); }
 })();
 </script>
 
