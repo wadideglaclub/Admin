@@ -242,7 +242,7 @@
         var v=n.nodeValue;
         if(!v) return;
         if(v.indexOf('أندرو أكرم أدمن')!==-1) n.nodeValue=v.replace('أندرو أكرم أدمن','خدمة العملاء');
-        else if(v.indexOf('أندرو أكرم')!==-1) n.nodeValue=v.replace('أندرو أكرم','أندرو أكرم');
+        else if(v.indexOf('أندرو أكرم')!==-1) n.nodeValue=v.replace('خدمة العملاء','أندرو أكرم');
       });
       document.querySelectorAll('div').forEach(function(div){
         if(div.textContent.trim()==='أ' && div.className.indexOf('rounded-full')!==-1 && div.offsetWidth < 60){
