@@ -104,6 +104,7 @@
       else if(txt.indexOf('تم الغاء')!==-1 || txt.indexOf('تم إلغاء')!==-1) foundStatus='تم الغاء الطلب';
       else if(txt.indexOf('تم الاستلام')!==-1) foundStatus='تم الاستلام';
       else if(txt.indexOf('تم الإرسال')!==-1 || txt.indexOf('تم الإرسال')!==-1) foundStatus='تم الإرسال';
+      else if(txt.indexOf('تم الأتصال هاتفياً')!==-1 || txt.indexOf('تم الأتصال هاتفياً')!==-1) foundStatus='تم الأتصال هاتفياً';
     });
     if(foundStatus){
       currentRowStatus = foundStatus;
