@@ -193,7 +193,7 @@
         <option value="تم ارسال الإيميل" ${currentStatus==="تم ارسال الإيميل"?'selected':''}>تم ارسال الإيميل</option>
         <option value="تم الاستلام" ${currentStatus==="تم الاستلام"?'selected':''}>تم الاستلام</option>
         <option value="تم الإرسال" ${currentStatus==="تم الإرسال"?'selected':''}>تم الإرسال</option>
-        <option value="تم الإتصال هاتفياً" ${currentStatus==="تم الإتصال هاتفياً"?'selected':''}>تم الإتصال هاتفياً</option>
+        <option value=" تم الإتصال هاتفياً بالفرع" ${currentStatus==="تم الإتصال هاتفياً بالفرع"?'selected':''}>تم الإتصال هاتفياً بالفرع</option>
       </select>
       <div style="font-size:11px;color:#666;margin-top:6px;">الحالة الحالية: ${currentStatus}</div>
     `;
