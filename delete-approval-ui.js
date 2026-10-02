@@ -3,7 +3,13 @@
   function getRole(){
     try{return (sessionStorage.getItem('wd_role')||localStorage.getItem('wd_role')||'admin').toLowerCase();}catch(e){return 'admin';}
   }
-  function isAdmin(){return getRole()!=='staff';}
+  function isStaffRole(r){
+    return r==='staff' || r.indexOf('october')!==-1;
+  }
+  function isAdmin(){
+    let r=getRole();
+    return !isStaffRole(r);
+  }
   
   function getDeleteRequests(){
     try{
@@ -31,24 +37,13 @@
     let req=delReqs.find(r=>r.id===delId);
     if(!req) return;
     if(!confirm(`تأكيد الموافقة على حذف الطلب؟\nرقم العضوية: ${req.membershipNumber}\nالاسم: ${req.ownerName}\nطلب بواسطة: ${req.requestedBy}`)) return;
-    
-    // Remove from main requests
     let mainReqs=getRequests();
     let filtered=mainReqs.filter(r=>r.id!==req.requestId);
     saveRequests(filtered);
-    
-    // Remove from delete requests (or mark approved)
     let remaining=delReqs.filter(r=>r.id!==delId);
     saveDeleteRequests(remaining);
-    
-    // Show toast if possible
-    try{
-      if(window.WD_SHOW_TOAST) window.WD_SHOW_TOAST(`تم حذف الطلب ${req.membershipNumber} بموافقة الادمن`, 'success');
-    }catch(e){}
-    
     alert(`✅ تمت الموافقة وحذف الطلب ${req.membershipNumber} بنجاح`);
     render();
-    // Reload to update React state
     setTimeout(()=>{location.reload();}, 500);
   }
   
@@ -115,22 +110,22 @@
   
   function render(){
     createStyles();
-    
-    // Remove old bell/modal
     let oldBell=document.getElementById('wd-del-bell');
     if(oldBell) oldBell.remove();
-    let oldModal=document.getElementById('wd-del-modal');
-    // keep modal if open, else remove
     
     let delReqs=getDeleteRequests();
     let pending=delReqs.filter(r=>r.status==='pending');
     
     if(!isAdmin()){
-      // Staff: don't show bell, but show pending count in console
+      var bell=document.getElementById('wd-del-bell');
+      if(bell) bell.remove();
+      var navBtn=document.getElementById('wd-del-nav-btn');
+      if(navBtn) navBtn.style.display='none';
+      var modal=document.getElementById('wd-del-modal');
+      if(modal) modal.remove();
       return;
     }
     
-    // Admin: show bell if pending
     if(pending.length>0){
       let bell=document.createElement('div');
       bell.id='wd-del-bell';
@@ -140,7 +135,6 @@
       document.body.appendChild(bell);
     }
     
-    // Also inject button into sidebar nav for admin
     try{
       let nav=document.querySelector('nav');
       if(nav && !document.getElementById('wd-del-nav-btn')){
@@ -155,6 +149,7 @@
         if(pending.length>0){
           btn.innerHTML=`🗑️ طلبات الحذف <span class="mr-auto bg-white text-red-600 text-[11px] px-2 py-0.5 rounded-full">${pending.length}</span>`;
           btn.className='h-[52px] lg:h-[48px] rounded-2xl flex items-center gap-3 px-4 font-bold text-[14px] transition border w-full mt-2 bg-red-600 text-white border-red-600';
+          btn.style.display='flex';
         } else {
           btn.innerHTML=`🗑️ طلبات الحذف`;
           btn.className='h-[52px] lg:h-[48px] rounded-2xl flex items-center gap-3 px-4 font-bold text-[14px] transition border w-full mt-2 bg-[#F8F8F5] border-zinc-200';
@@ -164,6 +159,7 @@
   }
   
   function openModal(){
+    if(!isAdmin()) return;
     createStyles();
     let existing=document.getElementById('wd-del-modal');
     if(existing) existing.remove();
@@ -232,7 +228,6 @@
     });
   }
   
-  // Expose globally for debugging
   window.WD_DELETE_APPROVAL={
     getRequests:getDeleteRequests,
     approve:approveDelete,
@@ -244,7 +239,6 @@
   function boot(){
     render();
     setInterval(render, 2000);
-    // Listen for storage changes
     window.addEventListener('storage', render);
   }
   
