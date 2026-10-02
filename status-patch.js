@@ -104,7 +104,7 @@
       else if(txt.indexOf('تم الغاء')!==-1 || txt.indexOf('تم إلغاء')!==-1) foundStatus='تم الغاء الطلب';
       else if(txt.indexOf('تم الاستلام')!==-1) foundStatus='تم الاستلام';
       else if(txt.indexOf('تم الإرسال')!==-1 || txt.indexOf('تم الإرسال')!==-1) foundStatus='تم الإرسال';
-      else if(txt.indexOf('تم الأتصال هاتفياً')!==-1 || txt.indexOf('تم الأتصال هاتفياً')!==-1) foundStatus='تم الأتصال هاتفياً';
+  
     });
     if(foundStatus){
       currentRowStatus = foundStatus;
@@ -193,6 +193,7 @@
         <option value="تم ارسال الإيميل" ${currentStatus==="تم ارسال الإيميل"?'selected':''}>تم ارسال الإيميل</option>
         <option value="تم الاستلام" ${currentStatus==="تم الاستلام"?'selected':''}>تم الاستلام</option>
         <option value="تم الإرسال" ${currentStatus==="تم الإرسال"?'selected':''}>تم الإرسال</option>
+        <option value="تم الإتصال هاتفياً" ${currentStatus==="تم الإتصال هاتفياً"?'selected':''}>تم الإتصال هاتفياً</option>
       </select>
       <div style="font-size:11px;color:#666;margin-top:6px;">الحالة الحالية: ${currentStatus}</div>
     `;
