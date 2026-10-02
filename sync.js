@@ -2,7 +2,7 @@
 (function () {
   var SUPABASE_URL = "https://nlhjibxhxzwehlzlixgb.supabase.co";
   var SUPABASE_KEY = "sb_publishable_iiqsJZG2MfcrPNCpt8iiQA_kfDlzxd1";
-  var KEYS = ["wadi_degla_requests_final", "wadi_degla_card_locations", "wadi_degla_employees", "wadi_degla_branches"];
+  var KEYS = ["wadi_degla_requests_final", "wadi_degla_card_locations", "wadi_degla_employees", "wadi_degla_branches", "wadi_degla_delete_requests"];
   var clientId = Math.random().toString(36).slice(2) + Date.now();
   var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: { persistSession: false },
