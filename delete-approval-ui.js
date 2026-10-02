@@ -57,10 +57,20 @@
   }
   
   function clearAll(){
-    if(!confirm('حذف جميع طلبات الحذف المعلقة؟')) return;
+    let delReqs=getDeleteRequests();
+    let pending=delReqs.filter(r=>r.status==='pending');
+    if(pending.length===0) return;
+    if(!confirm(`تأكيد الموافقة وحذف جميع الطلبات المعلقة (${pending.length} طلب)؟\nسيتم حذف جميع الطلبات الأصلية نهائياً`)) return;
+    // احذف الطلبات الأصلية
+    let mainReqs=getRequests();
+    let idsToDelete=pending.map(r=>r.requestId);
+    let filtered=mainReqs.filter(r=>idsToDelete.indexOf(r.id)===-1);
+    saveRequests(filtered);
+    // امسح قائمة طلبات الحذف
     saveDeleteRequests([]);
+    alert(`✅ تمت الموافقة وحذف ${pending.length} طلب بنجاح`);
     render();
-    location.reload();
+    setTimeout(()=>{location.reload();}, 500);
   }
   
   function createStyles(){
@@ -206,10 +216,21 @@
       });
       
       let clearBtn=document.createElement('button');
-      clearBtn.textContent='مسح الكل';
-      clearBtn.style.cssText='width:100%; margin-top:12px; height:36px; border-radius:10px; border:1px solid #e5e7eb; background:white; font-size:12px; font-weight:bold; cursor:pointer;';
+      clearBtn.innerHTML=`✅ موافقة وحذف الكل (${pending.length})`;
+      clearBtn.style.cssText='width:100%; margin-top:16px; height:48px; border-radius:14px; border:none; background:#0F0F0F; color:#FFD700; font-size:14px; font-weight:900; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.15);';
       clearBtn.onclick=clearAll;
       body.appendChild(clearBtn);
+      
+      let clearOnlyBtn=document.createElement('button');
+      clearOnlyBtn.textContent='🗑️ مسح القائمة فقط (بدون حذف الطلبات)';
+      clearOnlyBtn.style.cssText='width:100%; margin-top:8px; height:36px; border-radius:10px; border:1px solid #e5e7eb; background:#f9fafb; font-size:11px; font-weight:bold; cursor:pointer; color:#6b7280;';
+      clearOnlyBtn.onclick=function(){
+        if(!confirm('مسح قائمة طلبات الحذف فقط بدون حذف الطلبات الأصلية؟')) return;
+        saveDeleteRequests([]);
+        render();
+        setTimeout(()=>{location.reload();}, 300);
+      };
+      body.appendChild(clearOnlyBtn);
     }
     
     box.appendChild(header);
